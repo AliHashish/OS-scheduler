@@ -22,7 +22,7 @@ int right(int i) {
 }
 
 bool comparison(process *x, process* y) {
-  if(x->priority > y->priorty) {
+  if(x->priority > y->priority) {
     return true;
   }
   return false;
@@ -37,6 +37,13 @@ void swap(process** x, process** y) {
 
 //TODO - print
 
+void priQprint(priQ *all_process) {
+  int size = all_process->size;
+  for(int i=0;i<size;i++) {
+    printf("%d\n",all_process->queue[i]->id);
+  }
+}
+
 // 1 for success, 0 for failed (when no queue is passed)
 bool create_priQ(priQ *all_process,int capacity) {
   if(!all_process) return 0;
@@ -44,11 +51,11 @@ bool create_priQ(priQ *all_process,int capacity) {
 
   all_process->size=0;
   all_process->capacity=capacity;
-  all_process->queue = (process **)calloc(queue->capacity, sizeof(process *)); //initialize to zero
+  all_process->queue = (process **)calloc(all_process->capacity, sizeof(process *)); //initialize to zero
   return 1;
 }
 
-process* peek(priQ *all_process) {
+process* priQpeek(priQ *all_process) {
   if(all_process->size==0) return NULL;
   return all_process->queue[0];
 } 
@@ -94,7 +101,7 @@ void reheapUp(priQ* all_process) {
   }
 }
 
-process* dequeue(priQ *all_process) {
+process* priQdequeue(priQ *all_process) {
   if(!all_process || !all_process->queue) return NULL;
   int *size = &all_process->size;
   (*size--);
@@ -105,7 +112,7 @@ process* dequeue(priQ *all_process) {
   return removed;
 }
 
-bool enqueue(priQ* all_process, process* p) {
+bool priQenqueue(priQ* all_process, process* p) {
   if(all_process->capacity==all_process->size) return 0;
   int *size = &all_process->size;
   all_process->queue[*size] = p;
@@ -116,12 +123,12 @@ bool enqueue(priQ* all_process, process* p) {
 }
 
 
-bool remove(priQ* all_process, process* p) {
+bool priQremove(priQ* all_process, process* p) {
   int i;
   int *size = &all_process->size;
 
   for (i = 0; i < *size; i++) {
-    if (all_process->queue[i] == process) {
+    if (all_process->queue[i] == p) {
       swap(&all_process->queue[i], &all_process->queue[*size - 1]);
       (*size)--;
       reheapDown(all_process, i);
@@ -132,7 +139,7 @@ bool remove(priQ* all_process, process* p) {
   return 0;
 }
 
-bool freePri(priQ* all_process) {
+bool priQfree(priQ* all_process) {
   if(!all_process || !all_process->queue) return 0;
   free(all_process->queue);
   return 1;

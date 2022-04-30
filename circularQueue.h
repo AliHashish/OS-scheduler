@@ -13,13 +13,19 @@ typedef struct circularQ {
 } circularQ;
 
 //Default intializer
-circularQ circularQueueDefault = {0, 0, 0, 0, NULL};\
+//circularQ circularQueueDefault = {0, 0, 0, 0, NULL};
 
 //A function the returns the next index
 int circularQForward(circularQ *queue, int i) {
   return (i + queue->size - 1) % queue->size;
 }
 
+void circularQprint(circularQ *queue) {
+  int size = queue->occupied;
+  for(int i=0;i<size;i++) {
+    printf("%d\n",queue->entries[i]->id);
+  }
+}
 
 //A function the returns the previous index
 int circularQBackward(circularQ *queue, int i) {
@@ -74,7 +80,6 @@ int circularQEnqueue(circularQ *queue, process *p) {
 
   // Queue is full
   if (queue->occupied == queue->size) return -1;
-
   queue->entries[queue->back] = p;
   // Move back circularly
   queue->back = circularQBackward(queue, queue->back);
