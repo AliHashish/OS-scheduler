@@ -7,9 +7,9 @@ void clearResources(int);
 circularQ processes;    // global vairable carrying all the processes
 priQ pri_processes;
 
-void ReadInputFile()
+void ReadInputFile(char* filename)
 {
-    FILE* ptr = fopen("processes.txt", "r");
+    FILE* ptr = fopen(filename, "r");
     if (ptr == NULL) {
         printf("no such file.");
         return;
@@ -79,6 +79,26 @@ void ReadInputFile()
 
 }
 
+ReadScheduleAlgo(char* ScheduleAlgo)
+{
+    if(ScheduleAlgo[0] == '1')
+    {
+        //SJF
+    }
+    else if (ScheduleAlgo[0] == '2')
+    {
+        //HPF
+    }
+    else if (ScheduleAlgo[0] == '3')
+    {
+        //RR
+    }
+    else if (ScheduleAlgo[0] == '4')
+    {
+        //multilevel
+    }
+}
+
 int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
@@ -86,10 +106,10 @@ int main(int argc, char *argv[])
     // 1. Read the input files.
     circularQInit(&processes, 50);   // can handle up to 50 processes at once
     create_priQ(&pri_processes,50);
-    ReadInputFile();
+    ReadInputFile(argv[1]);
     // priQprint(&pri_processes);
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
-
+    ReadScheduleAlgo(argv[3]);
     // 3. Initiate and create the scheduler and clock processes.
     // 4. Use this function after creating the clock process to initialize clock.
 
