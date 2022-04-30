@@ -8,6 +8,32 @@ typedef struct priQ {
   process **queue;
 } priQ;
 
+/***** UTILS *****/
+int parent(int i) {
+  return (i-1)/2;
+}
+
+int left(int i) {
+  return 2*i + 1;
+}
+
+int right(int i) {
+  return 2*i + 2;
+}
+
+bool comparison(process *x, process* y) {
+  if(x->priority > y->priorty) {
+    return true;
+  }
+  return false;
+}
+
+void swap(process** x, process** y) {
+  process* temp = *x;
+  *x = *y;
+  *y = temp;
+}
+
 
 //TODO - print
 
@@ -110,30 +136,4 @@ bool freePri(priQ* all_process) {
   if(!all_process || !all_process->queue) return 0;
   free(all_process->queue);
   return 1;
-}
-
-/***** UTILS *****/
-int parent(int i) {
-  return (i-1)/2;
-}
-
-int left(int i) {
-  return 2*i + 1;
-}
-
-int right(int i) {
-  return 2*i + 2;
-}
-
-bool comparison(process *x, process* y) {
-  if(x->priority > y->priorty) {
-    return true;
-  }
-  return false;
-}
-
-void swap(process** x, process** y) {
-  process* temp = *x;
-  *x = *y;
-  *y = temp;
 }
