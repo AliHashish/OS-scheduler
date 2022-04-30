@@ -22,6 +22,26 @@ typedef short bool;
 int *shmaddr; //
 //===============================
 
+
+// stores the data of the processes
+typedef struct process
+{
+    int id;
+    int arrivaltime;
+    int runtime;
+    int remainingtime;
+    int waitingtime;
+    int priority;
+    int StartedBefore; // 1 means it was started before, 0 means it has never been started before
+    int status;
+    // possible status values:
+    // 1 ----> started
+    // 2 ----> resumed
+    // 3 ----> stopped
+    // 4 ----> finished
+} process;
+
+
 int getClk()
 {
     return *shmaddr;
