@@ -42,6 +42,8 @@ typedef struct process
     // 4 ----> finished
 } process;
 
+// The running process for all files
+process *current_running_process = NULL;
 
 int getClk()
 {
