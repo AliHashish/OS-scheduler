@@ -1,6 +1,8 @@
 #include "headers.h"
 #include "circularQueue.h"
 #include "priQ.h"
+#include "pcb.h"
+#include "scheduler.h"
 
 void clearResources(int);
 
@@ -106,7 +108,7 @@ void ReadScheduleAlgo(char* ScheduleAlgo)
 // The process generators creats the clock and the scheduler
 void forkClkAndScheduler(){
 
-    clk_pid = fork()
+    clk_pid = fork();
     if(clk_pid == -1){
         printf("Error while forking \n");
         exit(1);
@@ -117,7 +119,7 @@ void forkClkAndScheduler(){
     }
     // Parent(process generator)
     else{
-        scheduler_pid =fork()
+        scheduler_pid =fork();
         if(scheduler_pid == -1){
         printf("Error while forking \n");
         exit(1);
@@ -142,13 +144,13 @@ int main(int argc, char *argv[])
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
     
     // ReadScheduleAlgo(argv[3]);
-    selected_algo = argv[3];
+    selected_algo = *argv[3];
 
     // 3. Initiate and create the scheduler and clock processes.
     
     // Creating message queue
     int msgq_id, send_val;
-    msgq_id = msgget(key_id, 0666 | IPC_CREAT);
+    msgq_id = msgget(MSGQKEY, 0666 | IPC_CREAT);
     if (msgq_id == -1)
     {
         printf("Error in create");
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
 
         // TODO Generation Main Loop
         // 5. Create a data structure for processes and provide it with its parameters.
-        process *curr_proc = circularQForward(&processes);
+        process *curr_proc = circularQFront(&processes);
         if(curr_proc->arrivaltime <= curr_time){
             curr_proc = circularQDequeue(&processes);
 

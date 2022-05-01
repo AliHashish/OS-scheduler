@@ -34,7 +34,7 @@ bool schedulerInitialize(int algo,int *msgq_id){
     }
     
     // Creating the message queue
-    int msgq_idTemp = msgget(key_id, 0666 | IPC_CREAT);
+    int msgq_idTemp = msgget(MSGQKEY, 0666 | IPC_CREAT);
     if (msgq_idTemp == -1)
     {
         printf("Error in create");
@@ -49,7 +49,7 @@ bool schedulerInitialize(int algo,int *msgq_id){
 bool schedulerReceiveMessage(int msgq_id,msgBuf *message){
     
     // Doesn't wait for the process generator to send message
-    int rec_val = msgrcv(msgq_id, message, sizeof(message.proc), 911, IPC_NOWAIT);
+    int rec_val = msgrcv(msgq_id, message, sizeof(process), 911, IPC_NOWAIT);
     if(rec_val == -1){return false;}
     return true;
 }
@@ -65,11 +65,11 @@ void schedulerCreateProcess(msgBuf *msg_buffer){
         execl("bin/process.out","process.out",msg_buffer->proc.remainingtime,(char *)NULL);
     }
     // Making the process stopped and check after if ready
-    kill(pid,SIGSTP);
+    kill(pid,SIGTSTP);
 
     // insert in the PCB
     // Using the chosen algorithm on the created process
-    algo.addProcess(algo.type,msg_buffer->proc);
+    algo.addProcess(algo.type,&msg_buffer->proc);
 }
 
 
@@ -79,7 +79,7 @@ void schedulerPreempt(process *proc){
 
     proc->status = 3; // Stopped process
     proc->StartedBefore = 1; // Marking the process as ran before
-    kill(proc->id,SIGSTP); // Stopping the process
+    kill(proc->id,SIGTSTP); // Stopping the process
 
     // etba3 info
 

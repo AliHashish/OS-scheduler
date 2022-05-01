@@ -18,6 +18,8 @@ typedef short bool;
 
 #define SHKEY 300
 
+#define MSGQKEY 167
+
 ///==============================
 //don't mess with this variable//
 int *shmaddr; //

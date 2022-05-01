@@ -4,13 +4,13 @@
 // Variables needed for the time info
 int remaining_time,run_time,wait_time,start_time,sleep_time;
 
-// Overwriting the SIGSTP
+// Overwriting the SIGTSTP
 void stopProcess(int signum){
     sleep_time = getClk();
     raise(SIGSTOP);
 
     // assuring the handler is set
-    signal(SIGSTP,stopProcess);
+    signal(SIGTSTP,stopProcess);
 }
 
 // Overwriting the SIGCONT
@@ -24,7 +24,7 @@ void resumeProcess(int signum){
 int main(int agrc, char *argv[])
 {
     // Setting handlers
-    signal(SIGSTP,stopProcess);
+    signal(SIGTSTP,stopProcess);
     signal(SIGCONT,resumeProcess);
     
     initClk();
