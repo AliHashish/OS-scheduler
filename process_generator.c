@@ -6,6 +6,10 @@ void clearResources(int);
 
 circularQ processes;    // global vairable carrying all the processes
 priQ pri_processes;
+int clk_pid;
+int scheduler_pid;
+char selected_algo;
+int stat_loc;
 
 void ReadInputFile(char* filename)
 {
@@ -15,9 +19,7 @@ void ReadInputFile(char* filename)
         return;
     }
  
-   
     char buf[100];
-	
 	
 	// 	Format string explanation:
 	// 	% is the character which each scanf format string starts with;
@@ -26,9 +28,6 @@ void ReadInputFile(char* filename)
 	// 	\n means newline;
 
 	// so the [^\n]\n means a full text line ending with newline.
-
-
-
 
     int id, arrival, run, priority;     // used in reading the input file
 	
@@ -79,25 +78,57 @@ void ReadInputFile(char* filename)
 
 }
 
-ReadScheduleAlgo(char* ScheduleAlgo)
+void ReadScheduleAlgo(char* ScheduleAlgo)
 {
+    //SJF
     if(ScheduleAlgo[0] == '1')
     {
-        //SJF
+        
     }
+    //HPF
     else if (ScheduleAlgo[0] == '2')
     {
-        //HPF
+        
     }
+    //RR
     else if (ScheduleAlgo[0] == '3')
     {
-        //RR
+
     }
+    //multilevel
     else if (ScheduleAlgo[0] == '4')
     {
-        //multilevel
+        
     }
 }
+
+
+// The process generators creats the clock and the scheduler
+void forkClkAndScheduler(){
+
+    clk_pid = fork()
+    if(clk_pid == -1){
+        printf("Error while forking \n");
+        exit(1);
+    }
+    // Child(clock proc)
+    else if(clk_pid == 0){
+        execl("bin/clk.out","clk.out",(char *)NULL);
+    }
+    // Parent(process generator)
+    else{
+        scheduler_pid =fork()
+        if(scheduler_pid == -1){
+        printf("Error while forking \n");
+        exit(1);
+        }
+        // Child(Scheduler proc)
+        else if (scheduler_pid == 0){
+            execl("bin/scheduler.out","scheduler.out",selected_algo,(char *)NULL);
+        }
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -109,25 +140,66 @@ int main(int argc, char *argv[])
     ReadInputFile(argv[1]);
     // priQprint(&pri_processes);
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
-    ReadScheduleAlgo(argv[3]);
+    
+    // ReadScheduleAlgo(argv[3]);
+    selected_algo = argv[3];
+
     // 3. Initiate and create the scheduler and clock processes.
+    
+    // Creating message queue
+    int msgq_id, send_val;
+    msgq_id = msgget(key_id, 0666 | IPC_CREAT);
+    if (msgq_id == -1)
+    {
+        printf("Error in create");
+        exit(-1);
+    }
+    //Creating the clock and the scheduler
+    forkClkAndScheduler();
+
     // 4. Use this function after creating the clock process to initialize clock.
 
-    //initClk();
+    initClk();
 
-    // To get time use this function. 
-    //int x = getClk();
-    //printf("Current Time is %d\n", x);
-    // TODO Generation Main Loop
-    // 5. Create a data structure for processes and provide it with its parameters.
-    // 6. Send the information to the scheduler at the appropriate time.
+    while(processes.occupied != 0){
+        // Getting the current clock time
+        int curr_time = getClk();
+        printf("Current Time is %d\n", curr_time);
+
+        // TODO Generation Main Loop
+        // 5. Create a data structure for processes and provide it with its parameters.
+        process *curr_proc = circularQForward(&processes);
+        if(curr_proc->arrivaltime <= curr_time){
+            curr_proc = circularQDequeue(&processes);
+
+            // 6. Send the information to the scheduler at the appropriate time.
+            msgBuf message;
+            message.mtype = 911; //may be in #DEFINE
+
+            message.proc = *curr_proc;
+            send_val = msgsnd(msgq_id, &message, sizeof(message.proc), !IPC_NOWAIT);
+            
+            if(send_val == -1){ printf("There was error in sending the message"); }
+            free(curr_proc); // Deallocating the dynamically created process
+        }
+    }
+
+    // The process generator is waiting for the scheduler to terminate
+    int temp_pid = wait(&stat_loc);
+
     // 7. Clear clock resources
-    //destroyClk(true);
+    destroyClk(true);
 }
 
 void clearResources(int signum)
 {
     //TODO Clears all resources in case of interruption
+    destroyClk(true);
+
+    int msgq_id = msgget(MSGQKEY, 0666 | IPC_CREAT);
+    msgctl(msgq_id, IPC_RMID, (struct msqid_ds *)0);
+
+    exit(0); // terminating the process   
 }
 
 

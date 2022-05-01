@@ -81,3 +81,20 @@ void destroyClk(bool terminateAll)
         killpg(getpgrp(), SIGINT);
     }
 }
+
+// Algorithms structer
+typedef struct scheduling_algo{
+    void *type;
+    int (*addProcess)(void *type, process *proc);
+    bool (*preempt)(void *type);
+    process *(*getNextProcess)(void *type);
+    int (*removeProcess)(void *type, process *proc);
+    int (*free)(void *type);
+
+}scheduling_algo;
+
+// Message buffer for the process
+typedef struct {
+  long mtype;
+  process proc;
+} msgBuf;
