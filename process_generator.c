@@ -3,6 +3,7 @@
 #include "priQ.h"
 #include "pcb.h"
 #include "scheduler.h"
+#include "HPF.h"
 
 void clearResources(int);
 
@@ -10,7 +11,6 @@ circularQ processes;    // global vairable carrying all the processes
 priQ pri_processes;
 int clk_pid;
 int scheduler_pid;
-char selected_algo;
 int stat_loc;
 
 void ReadInputFile(char* filename)
@@ -138,8 +138,9 @@ int main(int argc, char *argv[])
     // TODO Initialization
     // 1. Read the input files.
     circularQInit(&processes, 50);   // can handle up to 50 processes at once
-    create_priQ(&pri_processes,50);
+    priQcreate(&pri_processes,50);
     ReadInputFile(argv[1]);
+    priQprint(&pri_processes);
     // priQprint(&pri_processes);
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
     

@@ -22,7 +22,7 @@ int right(int i) {
 }
 
 bool comparison(process *x, process* y) {
-  if(x->priority > y->priority) {
+  if(x->priority < y->priority) {
     return true;
   }
   return false;
@@ -45,7 +45,7 @@ void priQprint(priQ *all_process) {
 }
 
 // 1 for success, 0 for failed (when no queue is passed)
-bool create_priQ(priQ *all_process,int capacity) {
+bool priQcreate(priQ *all_process,int capacity) {
   if(!all_process) return 0;
   if(!capacity) capacity=50;
 

@@ -20,6 +20,8 @@ typedef short bool;
 
 #define MSGQKEY 167
 
+char selected_algo;
+
 ///==============================
 //don't mess with this variable//
 int *shmaddr; //
@@ -89,11 +91,11 @@ void destroyClk(bool terminateAll)
 // Algorithms structer
 typedef struct scheduling_algo{
     void *type;
-    int (*addProcess)(void *type, process *proc);
+    bool (*addProcess)(void *type, process *proc);
     bool (*preempt)(void *type);
     process *(*getNextProcess)(void *type);
-    int (*removeProcess)(void *type, process *proc);
-    int (*free)(void *type);
+    bool (*removeProcess)(void *type, process *proc);
+    bool (*free)(void *type);
 
 }scheduling_algo;
 
