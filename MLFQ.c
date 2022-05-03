@@ -76,8 +76,10 @@ process *MLFQ_getNextProcess(void *type){
 bool MLFQ_removeProcess(void *type,process *proc){
     cast(type);
 
-    process *temp = priQremove(queue,proc);
-    return temp == proc ? 1 : 0; 
+    //process *temp = priQremove(queue,proc);
+    //return temp == proc ? 1 : 0; 
+    bool success = priQremove(queue,proc);
+    return success;
 }
 
 
@@ -93,8 +95,9 @@ bool MLFQ_init(scheduling_algo * curr_algo){
     if(!curr_algo) return 0;  
 
     queue = (priQ *)malloc(sizeof(priQ));
-    create_priQ(queue,100);
-
+    //create_priQ(queue,100);
+    priQcreate(queue, 100);
+    
     *curr_algo = (scheduling_algo){
         queue,
         MLFQ_addProcess,
