@@ -132,7 +132,7 @@ bool priQremove(priQ* all_process, process* p) {
       swap(&all_process->queue[i], &all_process->queue[*size - 1]);
       (*size)--;
       reheapDown(all_process, i);
-      break;
+      //break;
       return 1;
     }
   }
