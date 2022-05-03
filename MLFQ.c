@@ -15,12 +15,12 @@ void cast(void *type) {
 
 
 // Inserting a process to the priQ
-int MLFQ_addProcess(void *type,process *proc){
+bool MLFQ_addProcess(void *type,process *proc){
     cast(type);
 
     bool check = priQenqueue(queue,proc);
-    if(!check) return 0;
-    return 1;
+    if(!check) return false;
+    return true;
 }
 
 
@@ -73,7 +73,7 @@ process *MLFQ_getNextProcess(void *type){
 
 
 // Removes the process from the pri queue
-int MLFQ_removeProcess(void *type,process *proc){
+bool MLFQ_removeProcess(void *type,process *proc){
     cast(type);
 
     process *temp = priQremove(queue,proc);
@@ -82,14 +82,14 @@ int MLFQ_removeProcess(void *type,process *proc){
 
 
 // Frees the alocated resources created by the algorithm
-int MLFQ_free(void *type){
+bool MLFQ_free(void *type){
     cast(type);
     return priQfree(queue);
 }
 
 
 // Initialzing the algorithm
-int MLFQ_init(scheduling_algo * curr_algo){
+bool MLFQ_init(scheduling_algo * curr_algo){
     if(!curr_algo) return 0;  
 
     queue = (priQ *)malloc(sizeof(priQ));
