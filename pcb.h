@@ -3,8 +3,8 @@
 #include "headers.h"
 
 struct pcb{
-    int size;
-    int capacity;
+    int size;       // actual used sized
+    int capacity;   // maximum size available for usage
     process **array;
 } pcb;
 
@@ -90,3 +90,5 @@ bool pcbFree() {
 
     return 1;
 }
+
+// void pcbFilePrint

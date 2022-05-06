@@ -73,7 +73,8 @@ void ReadInputFile(char* filename)
 
             // enqueues pcb to the processes Circular Queue
             circularQEnqueue(&processes, pcb);
-            priQenqueue(&pri_processes, pcb);
+
+            // priQenqueue(&pri_processes, pcb); // 8albn kona 3amleen dyh 3lshan n-test bs? el mfrood nshelha a3taked
 		}
 		
 	}
@@ -138,9 +139,9 @@ int main(int argc, char *argv[])
     // TODO Initialization
     // 1. Read the input files.
     circularQInit(&processes, 50);   // can handle up to 50 processes at once
-    priQcreate(&pri_processes,50);
+    // priQcreate(&pri_processes,50); // 8albn kona 3amleen dyh 3lshan n-test bs? el mfrood nshelha a3taked
     ReadInputFile(argv[1]);
-    priQprint(&pri_processes);
+    // priQprint(&pri_processes); // 8albn kona 3amleen dyh 3lshan n-test bs? el mfrood nshelha a3taked
     // priQprint(&pri_processes);
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
     

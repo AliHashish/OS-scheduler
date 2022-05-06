@@ -3,13 +3,30 @@
 //include the algos
 
 #include "headers.h"
+#include "pcb.h"
 
 scheduling_algo algo;
+FILE *outputStats;      // File pointer to the output file, where stats will be written
+
+int previousTimeUsage;  // Time when we last utilized the CPU
+int idleTime = 0;       // Time CPU was idle in, initially = 0
+
+int waitingTime = 0;    // waiting time of processes, initially = 0
+int numProc = 0;        // number of processes, initially = 0
+double avgWTA = 0;      // average weighted turnaround time, initially = 0
+
 
 void schedulerIsForContextSwitch();
 
 // Scheduler intializer
 bool schedulerInitialize(int algo,int *msgq_id){
+
+    // Opening the file where we will output the process updates
+    outputStats = fopen("OutputStats/scheduler.log", "w");
+
+    // Printing the opening statement
+    fprintf(outputStats, "#At time x process y state arr w total z remain y wait k\n");
+    fflush(outputStats);
 
     // Calling the initializer of each algorithm
     //SJF
@@ -81,8 +98,14 @@ void schedulerPreempt(process *proc){
     proc->StartedBefore = 1; // Marking the process as ran before
     kill(proc->id,SIGTSTP); // Stopping the process
 
-    // etba3 info
+    // Printing process info
+    fprintf(outputStats, "At time %d process %d stopped arr %d total %d remain %d wait %d\n",
+        getClk(), proc->id, proc->arrivaltime, proc->runtime, proc->remainingtime, proc->waitingtime);
 
+    fflush(outputStats);
+    
+    previousTimeUsage = getClk();   // starting from now, till another process utilizes the CPU
+                                    // that will be the idle time.
 }
 
 
@@ -95,7 +118,23 @@ void schedulerResume(process *proc){
     proc->status = 2; // Marking the status as running
     kill(proc->id,SIGCONT); // Continue the process
 
-    // etba3 info
+    // Printing process info
+    
+    // Remember:
+    // int StartedBefore; // 1 means it was started before, 0 means it has never been started before
+    bool FirstTime = false;  // a flag that shows whether process is resuming or starting
+                             // false means resuming
+    if (proc->StartedBefore == 0) // then it is now starting
+    {
+        FirstTime = true;
+    }
+    fprintf(outputStats, "At time %d process %d %s arr %d total %d remain %d wait %d\n",
+         getClk(), proc->id, (FirstTime)? "started" : "resumed", proc->arrivaltime, proc->runtime, proc->remainingtime, proc->waitingtime);
+    fflush(outputStats);
+
+    // Calculating how long it has been idle
+    idleTime += getClk() - previousTimeUsage;
+
 }
 
 
@@ -109,4 +148,56 @@ void schedulerIsForContextSwitch(){
         process* next = algo.getNextProcess(algo.type);
         schedulerResume(next);
     }
+}
+
+void schedulerTermination(int SIGNUM){
+    // 7eta mn el termination, 8albn hashelha wa5od el farah ht3mlo
+    int procStatus;
+    int procID = wait(&procStatus);
+    if (WIFEXITED(procStatus)) {
+        int exitCode = WEXITSTATUS(procStatus);
+        if (exitCode) {
+        // Handle error
+        }
+    }
+    process *proc = pcbGetProcess(procID);
+
+
+
+    numProc++;  // increasing number of processes
+    int turnaroundTime = getClk() - proc->arrivaltime;
+    double weightedTurnaroundTime = turnaroundTime / (double)proc->runtime;
+
+    // double avgWeightedTurnaroundTime = avgWTA;  // temporary holder
+    avgWTA = (weightedTurnaroundTime + (numProc - 1) * avgWTA) / numProc;
+    // Method of calucation: similar to that of calculating the GPA
+    // getting the total WTA by multiplying the number of processes (excluding the terminating one)
+    // by the avgWTA. Then we add the new WTA, and divide by the total number of processes.
+
+    waitingTime += proc->waitingtime;
+    previousTimeUsage = getClk(); // updating the utilization time
+
+    // Printing process info
+    fprintf(outputStats, "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
+        getClk(), proc->id, proc->arrivaltime, proc->runtime, proc->remainingtime, proc->waitingtime, turnaroundTime, weightedTurnaroundTime);
+    fflush(outputStats);
+}
+
+void schedulerFree(int SIGNUM){
+    // closing the opened file
+    fclose(outputStats);
+
+    // Calculating the utilization stats
+    outputStats = fopen("OutputStats/scheduler.perf", "w");
+    double utilization = 1 - ((double) idleTime / getClk());   // calculates the utilization percentage
+    double avgWaitingTime = (double)waitingTime / numProc;
+
+    // Printing the utilization stats in another file
+    fprintf(outputStats, "CPU utilization = %.2f\n", utilization * 100);
+    fprintf(outputStats, "Avg WTA = %.2f\n", avgWTA);
+    fprintf(outputStats, "Avg Waiting = %.2f\n", avgWaitingTime);
+    fflush(outputStats);
+    fclose(outputStats);
+
+    // TODO: free the rest of the stuff here
 }
