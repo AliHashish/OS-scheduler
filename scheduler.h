@@ -193,7 +193,7 @@ void schedulerFree(int SIGNUM){
     double avgWaitingTime = (double)waitingTime / numProc;
 
     // Printing the utilization stats in another file
-    fprintf(outputStats, "CPU utilization = %.2f\n", utilization * 100);
+    fprintf(outputStats, "CPU utilization = %.2f%%\n", utilization * 100);
     fprintf(outputStats, "Avg WTA = %.2f\n", avgWTA);
     fprintf(outputStats, "Avg Waiting = %.2f\n", avgWaitingTime);
     fflush(outputStats);
