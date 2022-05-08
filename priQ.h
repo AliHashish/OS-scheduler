@@ -27,6 +27,12 @@ bool comparison(process *x, process* y) {
   }
   return false;
 }
+bool comparisonSJF(process *x, process* y) {
+  if(x->arrivaltime < y->arrivaltime) {
+    return true;
+  }
+  return false;
+}
 
 void swap(process** x, process** y) {
   process* temp = *x;
