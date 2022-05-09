@@ -28,7 +28,7 @@ bool comparison(process *x, process* y) {
   return false;
 }
 bool comparisonSJF(process *x, process* y) {
-  if(x->arrivaltime < y->arrivaltime) {
+  if(x->runtime < y->runtime) {
     return true;
   }
   return false;
