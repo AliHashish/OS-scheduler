@@ -1,24 +1,24 @@
 #include "headers.h"
 #include "circularQueue.h"
-#include "priQ.h"
-#include "pcb.h"
-#include "scheduler.h"
-#include "HPF.h"
+//#include "priQ.h"
+//#include "pcb.h"
+//#include "scheduler.h"
+//#include "HPF.h"
 
 void clearResources(int);
 
 circularQ processes;    // global vairable carrying all the processes
-priQ pri_processes;
+// pri_processes;
 int clk_pid;
 int scheduler_pid;
 int stat_loc;
 
 void ReadInputFile(char* filename)
 {
-    FILE* ptr = fopen(filename, "r");
+    FILE* ptr = fopen("processes.txt", "r");
     if (ptr == NULL) {
         printf("no such file.");
-        return;
+        exit(1);
     }
  
     char buf[100];
@@ -46,18 +46,18 @@ void ReadInputFile(char* filename)
 		else
 		{
 			//printf("\n\nReal Line found\n"); // yb2a h3mlo read
-			printf("id: %s\n", buf);
+			//printf("id: %s\n", buf);
 			id = (int) strtol(buf, &p, 10); // converts first string into integer
 
 			fscanf(ptr, "%d", &arrival);
-			printf("arrival: %d\n", arrival);
+			//printf("arrival: %d\n", arrival);
 
 			fscanf(ptr, "%d", &run);
-			printf("run: %d\n", run);
+			//printf("run: %d\n", run);
             int remaining = run; // all processes initially start with remaining time = needed run time
 			
 			fscanf(ptr, "%d", &priority);
-			printf("Priority: %d\n", priority);
+			//printf("Priority: %d\n", priority);
 
             process *pcb = (process *)malloc(sizeof(process));
             *pcb = (process) {
@@ -81,36 +81,28 @@ void ReadInputFile(char* filename)
 
 }
 
-void ReadScheduleAlgo(char* ScheduleAlgo)
-{
-    //SJF
-    if(ScheduleAlgo[0] == '1')
-    {
-        
-    }
-    //HPF
-    else if (ScheduleAlgo[0] == '2')
-    {
-        
-    }
-    //RR
-    else if (ScheduleAlgo[0] == '3')
-    {
+/**
+ * A function that gets the algorithm from the user 
+ */
+void getAlgorithmFromUser(){
+    printf("Enter the required algorithm \n");
+    printf("1. SJF\n2. HPF\n3. RR\n4. MLFQ\n");
 
-    }
-    //multilevel
-    else if (ScheduleAlgo[0] == '4')
-    {
-        
-    }
+    do{
+        scanf("%d",&selected_algo);
+        if(selected_algo < 1 || selected_algo > 4){
+            printf("Invalid choice! Please enter a number from 1 to 4\n");
+        }
+    } while(selected_algo < 1 || selected_algo > 4);
+
+    if(selected_algo == 1) SJFflag = 1;
 }
-
 
 // The process generators creats the clock and the scheduler
 void forkClkAndScheduler(){
 
     clk_pid = fork();
-    if(clk_pid == -1){
+    if(clk_pid < 0){
         printf("Error while forking \n");
         exit(1);
     }
@@ -120,14 +112,16 @@ void forkClkAndScheduler(){
     }
     // Parent(process generator)
     else{
-        scheduler_pid =fork();
-        if(scheduler_pid == -1){
+        scheduler_pid = fork();
+        if(scheduler_pid < 0){
         printf("Error while forking \n");
         exit(1);
         }
         // Child(Scheduler proc)
         else if (scheduler_pid == 0){
-            execl("bin/scheduler.out","scheduler.out",selected_algo,(char *)NULL);
+            char selectedAlgorithmChar[5];
+            sprintf(selectedAlgorithmChar, "%d", selected_algo);
+            execl("bin/scheduler.out","scheduler.out",selectedAlgorithmChar,(char *)NULL);
         }
     }
 }
@@ -141,17 +135,21 @@ int main(int argc, char *argv[])
     circularQInit(&processes, 50);   // can handle up to 50 processes at once
     // priQcreate(&pri_processes,50); // 8albn kona 3amleen dyh 3lshan n-test bs? el mfrood nshelha a3taked
     ReadInputFile(argv[1]);
+
+    getAlgorithmFromUser();
     // priQprint(&pri_processes); // 8albn kona 3amleen dyh 3lshan n-test bs? el mfrood nshelha a3taked
     // priQprint(&pri_processes);
     // 2. Read the chosen scheduling algorithm and its parameters, if there are any from the argument list.
     
     // ReadScheduleAlgo(argv[3]);
-    selected_algo = *argv[3];
+    //selected_algo = *argv[3];
+    //selected_algo = '2';
 
     // 3. Initiate and create the scheduler and clock processes.
     
     // Creating message queue
     int msgq_id, send_val;
+    msgBuf message;
     msgq_id = msgget(MSGQKEY, 0666 | IPC_CREAT);
     if (msgq_id == -1)
     {
@@ -168,7 +166,7 @@ int main(int argc, char *argv[])
     while(processes.occupied != 0){
         // Getting the current clock time
         int curr_time = getClk();
-        printf("Current Time is %d\n", curr_time);
+        //printf("Current Time is %d\n", curr_time);
 
         // TODO Generation Main Loop
         // 5. Create a data structure for processes and provide it with its parameters.
@@ -177,9 +175,7 @@ int main(int argc, char *argv[])
             curr_proc = circularQDequeue(&processes);
 
             // 6. Send the information to the scheduler at the appropriate time.
-            msgBuf message;
             message.mtype = 911; //may be in #DEFINE
-
             message.proc = *curr_proc;
             send_val = msgsnd(msgq_id, &message, sizeof(message.proc), !IPC_NOWAIT);
             
@@ -189,6 +185,7 @@ int main(int argc, char *argv[])
     }
 
     // The process generator is waiting for the scheduler to terminate
+    printf("Waiting for scheduler to finish\n");
     int temp_pid = wait(&stat_loc);
 
     // 7. Clear clock resources

@@ -4,10 +4,10 @@
 
 // TODO
 // Take it as input from user later on
-int RR_quanta = 4;  // the length of the quanta
+int RR_quanta = 2;  // the length of the quanta
 int RR_start;   // when the process started running
 
-circularQ* queue;
+//circularQ* RRqueue;
 
 bool RRaddProcess(void *type, process* p);
 bool RRpreempt(void *type);
@@ -15,9 +15,9 @@ process* RRgetNextProcess(void *type);
 bool RRremoveProcess(void *type, process* p);
 bool RRfree(void *type);
 
-void cast(void *type)   // casts the parameter into a circular queue pointer
+void RRcast(void *type)   // casts the parameter into a circular queue pointer
 {
-    queue = (circularQ *) type;
+    // queue = (circularQ *) type;
 }
 
 
@@ -34,6 +34,7 @@ bool RRInitialize(scheduling_algo* current_algorithm) {
         RRgetNextProcess,
         RRremoveProcess,
         RRfree,
+        RRcast,
     };
 
     return 1;
@@ -42,14 +43,16 @@ bool RRInitialize(scheduling_algo* current_algorithm) {
 
 
 bool RRaddProcess(void *type, process* p) {
-    cast(type);
+    //RRcast(type);
+    circularQ *queue = (circularQ *)type;
     bool success = circularQEnqueue(queue,p) + 1;
     return success;
 }
 
 
 process* RRgetNextProcess(void *type) {
-    cast(type);
+    //RRcast(type);
+    circularQ *queue = (circularQ *)type;
     if (current_running_process == circularQFront(queue)) // This check needs to be done, to avoid skipping the first process.
     {
         process *proc = circularQDequeue(queue);    // dequeues the 1st process
@@ -73,8 +76,8 @@ bool RRpreempt(void *type) {
         return true;
     }
 
-    cast(type);
-
+    //RRcast(type);
+    circularQ *queue = (circularQ *)type;
     if(clk - RR_start == RR_quanta)         // the process has taken its full quanta
     {
         RR_start = clk;                     // sets the start time of the new process
@@ -91,7 +94,8 @@ bool RRpreempt(void *type) {
 
 
 bool RRremoveProcess(void *type, process* p) {
-    cast(type);
+    //RRcast(type);
+    circularQ *queue = (circularQ *)type;
     process* removed_proc = circularQRemove(queue,p);
     if(removed_proc)    // then p was removed successfully
     {
@@ -104,7 +108,8 @@ bool RRremoveProcess(void *type, process* p) {
 
 
 bool RRfree(void *type) {
-    cast(type);
+    //RRcast(type);
+    circularQ *queue = (circularQ *)type;
     int success = (circularQFree(queue))+ 1;
     // circularQFree returns 0 on success, -1 on failure
     // we need to turn that into 1 on success, 0 on failure

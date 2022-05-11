@@ -21,18 +21,27 @@ int right(int i) {
   return 2*i + 2;
 }
 
+bool comparisonSJF(process *x, process* y) {
+  if(x->runtime < y->runtime) {
+    return true;
+  }
+  return false;
+}
+
 bool comparison(process *x, process* y) {
+  //printf("I am flag %d\n",SJFflag);
+  if(SJFflag == 1) {
+    if(x->remainingtime < y->remainingtime) {
+    return true;
+    }
+    return false;
+  }
   if(x->priority < y->priority) {
     return true;
   }
   return false;
 }
-bool comparisonSJF(process *x, process* y) {
-  if(x->arrivaltime < y->arrivaltime) {
-    return true;
-  }
-  return false;
-}
+
 
 void swap(process** x, process** y) {
   process* temp = *x;
@@ -46,8 +55,9 @@ void swap(process** x, process** y) {
 void priQprint(priQ *all_process) {
   int size = all_process->size;
   for(int i=0;i<size;i++) {
-    printf("%d\n",all_process->queue[i]->id);
+    printf("%d ",all_process->queue[i]->id);
   }
+  printf("\n");
 }
 
 // 1 for success, 0 for failed (when no queue is passed)

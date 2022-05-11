@@ -19,7 +19,7 @@ void pcbInitialize(int inputSize) {
 
 }
 
-bool pcbInsert(process* p) {
+process* pcbInsert(process* p) {
 
     if(pcb.size == pcb.capacity) {
         pcb.capacity = pcb.capacity * 2;
@@ -29,7 +29,7 @@ bool pcbInsert(process* p) {
     *to_insert = *p;
 
     pcb.array[pcb.size++] = to_insert;
-    return 1;
+    return to_insert;
 
 }
 
@@ -55,10 +55,10 @@ bool pcbRemove(process* p) {
 void pcbRefresh() {
 
     for(int i=0;i<pcb.size;i++) {
-        if(pcb.array[i]->status == 1 || pcb.array[i]->status==2) {
+        if(pcb.array[i]->status == 1 || pcb.array[i]->status==2) { //running process
             pcb.array[i]->remainingtime--;
         }
-        else if(pcb.array[i]->status == 3) {
+        else if(pcb.array[i]->status == 3) { //waiting process
             pcb.array[i]->waitingtime++;
         }
         else if(pcb.array[i]->status == 4) {
@@ -72,7 +72,7 @@ process* pcbGetProcess(int id) {
     process *p = NULL;
     
     for(int i=0;i<pcb.size;i++) {
-        if(pcb.array[i]->id == id) {
+        if(pcb.array[i]->pid == id) {
             p = pcb.array[i];
             break;
         }

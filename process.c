@@ -2,7 +2,7 @@
 
 /* Modify this file as needed*/
 // Variables needed for the time info
-int remaining_time,run_time,wait_time,start_time,sleep_time;
+int remaining_time,run_time,wait_time = 0,start_time,sleep_time = 0;
 
 // Overwriting the SIGTSTP
 void stopProcess(int signum){
@@ -31,13 +31,20 @@ int main(int agrc, char *argv[])
     //TODO The process needs to get the remaining time from somewhere
     start_time = getClk();
     run_time = atoi(argv[1]);
+    printf("Runtime %d\n",run_time);
     remaining_time = run_time;
-    //remainingtime = ??;
+    printf("remaining %d\n",remaining_time);
     while (remaining_time > 0)
     {
+        //printf("I am process, remaining %d\n",remaining_time);
         remaining_time = run_time - (getClk() - start_time - wait_time);
     }
+    // testing termination from inside process
+    int end = getClk();
+    
 
     destroyClk(false);
+    printf("Exit\n");
+    exit(0);
     return 0;
 }

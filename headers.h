@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 
 typedef short bool;
 #define true 1
@@ -20,7 +21,8 @@ typedef short bool;
 
 #define MSGQKEY 167
 
-char selected_algo;
+int selected_algo;
+int SJFflag = 0;
 
 ///==============================
 //don't mess with this variable//
@@ -32,6 +34,7 @@ int *shmaddr; //
 typedef struct process
 {
     int id;
+    int pid;
     int arrivaltime;
     int runtime;
     int remainingtime;
@@ -96,6 +99,7 @@ typedef struct scheduling_algo{
     process *(*getNextProcess)(void *type);
     bool (*removeProcess)(void *type, process *proc);
     bool (*free)(void *type);
+    void (*cast)(void *type);
 
 }scheduling_algo;
 
