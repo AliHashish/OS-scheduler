@@ -2,9 +2,8 @@
 
 #include "circularQueue.h"
 
-// TODO
-// Take it as input from user later on
-int RR_quanta = 2;  // the length of the quanta
+
+// int RR_quanta = RRquanta;  // the length of the quanta
 int RR_start;   // when the process started running
 
 //circularQ* RRqueue;
@@ -78,7 +77,7 @@ bool RRpreempt(void *type) {
 
     //RRcast(type);
     circularQ *queue = (circularQ *)type;
-    if(clk - RR_start == RR_quanta)         // the process has taken its full quanta
+    if(clk - RR_start == RRquanta)         // the process has taken its full quanta
     {
         RR_start = clk;                     // sets the start time of the new process
 

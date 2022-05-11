@@ -23,6 +23,7 @@ typedef short bool;
 
 int selected_algo;
 int SJFflag = 0;
+int RRquanta;
 
 ///==============================
 //don't mess with this variable//
