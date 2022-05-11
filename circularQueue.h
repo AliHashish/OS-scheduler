@@ -7,8 +7,8 @@
 typedef struct circularQ {
     int front;
     int back;
-    int size;
-    int occupied;
+    int size;             // maximum capacity of Q
+    int occupied;         // actual number of entries
     process **entries;
 } circularQ;
 
