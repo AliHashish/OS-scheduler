@@ -42,7 +42,6 @@ bool comparison(process *x, process* y) {
   return false;
 }
 
-
 void swap(process** x, process** y) {
   process* temp = *x;
   *x = *y;
