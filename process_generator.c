@@ -98,22 +98,9 @@ void getAlgorithmFromUser(){
     } while(selected_algo < 1 || selected_algo > 4);
 
     if(selected_algo == 1) SJFflag = 1;
-    else if(selected_algo == 3) getQuantumSize();
 }
 
-/**
- * A function that gets the RR quantum size from the user 
- */
-void getQuantumSize(){
-    printf("Please enter quantum size: \n");
-    scanf("%d",&RRquanta);
-    if (RRquanta < 1)
-    {
-        printf("Invalid input entered. Taking default value of 2 instead.\n");
-        RRquanta = 2;
-    }
-    
-}
+
 
 // The process generators creats the clock and the scheduler
 void forkClkAndScheduler(){

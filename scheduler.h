@@ -22,6 +22,22 @@ void schedulerFree(int);
 void schedulerTermination(int);
 bool schedulerReceiveMessage(int,msgBuf*);
 
+
+/**
+ * A function that gets the RR quantum size from the user 
+ */
+void getQuantumSize(){
+    printf("Please enter quantum size: \n");
+    scanf("%d",&RRquanta);
+    if (RRquanta < 1)
+    {
+        printf("Invalid input entered. Taking default value of 2 instead.\n");
+        RRquanta = 2;
+    }
+}
+
+
+
 /*
     Handler for SIGCHLD, whenever a child dies it:
     1- Removes it from algorithm
@@ -109,7 +125,8 @@ bool schedulerInitialize(int algo_num,int *msgq_id){
     }
     //RR
     else if (algo_num == 3)
-    {
+    {   
+        getQuantumSize();
         RRInitialize(&algo);
     }
     //multilevel
