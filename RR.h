@@ -77,6 +77,7 @@ bool RRpreempt(void *type) {
     //RRcast(type);
     circularQ *queue = (circularQ *)type;
     // should be ==
+    fflush(stdout);
     if(clk - RR_start >= RRquanta)         // the process has taken its full quanta
     {
         RR_start = clk;                     // sets the start time of the new process
@@ -84,9 +85,15 @@ bool RRpreempt(void *type) {
         // before preempting, we have to make sure there are other processes in the queue
         // and that the process is not terminating. If either options are false (i.e, there are no
         // processes in the queue, or process is terminating), then do not preempt.
-        return (queue->occupied > 1) && (current_running_process->remainingtime > 0);
+        bool flag = (queue->occupied > 1) && (current_running_process->remainingtime > 0);
+        if (flag) {
+            printf("id: %d preempting\n\n", current_running_process->id);
+        }
+        // return (queue->occupied > 1) && (current_running_process->remainingtime > 0);
+        return flag;
     }
-
+    // printf("Quanta %d\n", RRquanta);
+    fflush(stdout);
     // if process has not taken its full quanta yet, do not preempt
     return false;
 }
