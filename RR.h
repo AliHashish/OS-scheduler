@@ -77,7 +77,7 @@ bool RRpreempt(void *type) {
     //RRcast(type);
     circularQ *queue = (circularQ *)type;
     // should be ==
-    if(clk - RR_start >= RRquanta)         // the process has taken its full quanta
+    if(getClk() - RR_start >= RRquanta)         // the process has taken its full quanta
     {
         RR_start = clk;                     // sets the start time of the new process
 

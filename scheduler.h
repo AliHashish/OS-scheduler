@@ -71,7 +71,7 @@ void schedulerTermination(int SIGNUM){
 
     waitingTime += proc->waitingtime;
     previousTimeUsage = getClk(); // updating the utilization time
-
+    if(proc->remainingtime<0) proc->remainingtime = 0;
     // Printing process info
     fprintf(outputStats, "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
         getClk(), proc->id, proc->arrivaltime, proc->runtime, proc->remainingtime, proc->waitingtime, turnaroundTime, weightedTurnaroundTime);
