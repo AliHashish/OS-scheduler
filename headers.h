@@ -48,6 +48,8 @@ typedef struct process
     // 2 ----> resumed
     // 3 ----> stopped
     // 4 ----> finished
+    int memsize;        // memory size taken by process
+    int memstart;       // index of starting location in memory for process
 } process;
 
 // The running process for all files
@@ -69,6 +71,7 @@ void initClk()
     {
         //Make sure that the clock exists
         printf("Wait! The clock not initialized yet!\n");
+        fflush(stdout);
         sleep(1);
         shmid = shmget(SHKEY, 4, 0444);
     }

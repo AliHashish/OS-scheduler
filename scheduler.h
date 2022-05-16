@@ -6,9 +6,11 @@
 #include "SJF.h"
 #include "MLFQ.h"
 #include "pcb.h"
+#include "buddy.h"
 
 scheduling_algo algo;
 FILE *outputStats;      // File pointer to the output file, where stats will be written
+FILE *memOutputStats;         // File pointer to the memory output file, where stats will be written
 
 int previousTimeUsage;  // Time when we last utilized the CPU
 int idleTime = 0;       // Time CPU was idle in, initially = 0
@@ -28,10 +30,12 @@ bool schedulerReceiveMessage(int,msgBuf*);
  */
 void getQuantumSize(){
     printf("Please enter quantum size: \n");
+    fflush(stdout);
     scanf("%d",&RRquanta);
     if (RRquanta < 1)
     {
         printf("Invalid input entered. Taking default value of 2 instead.\n");
+        fflush(stdout);
         RRquanta = 2;
     }
 }
@@ -77,6 +81,16 @@ void schedulerTermination(int SIGNUM){
         getClk(), proc->id, proc->arrivaltime, proc->runtime, proc->remainingtime, proc->waitingtime, turnaroundTime, weightedTurnaroundTime);
     fflush(outputStats);
 
+    printf("memstart: %d\n", proc->memstart);
+    fflush(stdout);
+    BuddyDeallocate(proc->memstart, proc->memsize);
+    int SmallestPowerOfTwo = BuddyPowerOfTwo(proc->memsize);
+    fprintf(memOutputStats, "At time %d freed %d bytes from process %d from %d to %d\n",
+        getClk(), proc->memsize, proc->id, proc->memstart, proc->memstart + SmallestPowerOfTwo - 1);
+    // or       , SmallestpowerOfTwo instead, 
+    fflush(memOutputStats);
+
+
     pcbRemove(proc); //removing from process control block
     current_running_process = NULL;
     schedulerIsForContextSwitch();
@@ -87,10 +101,14 @@ bool schedulerInitialize(int algo_num,int *msgq_id){
 
     // Opening the file where we will output the process updates
     outputStats = fopen("scheduler.log", "w");
+    memOutputStats = fopen("memory.log", "w");
 
     // Printing the opening statement
     fprintf(outputStats, "#At time x process y state arr w total z remain y wait k\n");
     fflush(outputStats);
+
+    fprintf(memOutputStats, "#At time x allocated y bytes for process z from i to j\n");
+    fflush(memOutputStats);
 
     /* sigaction to handle SIGCHLD signal
        whenever a process dies, it calls schedulerTermination
@@ -142,9 +160,13 @@ bool schedulerInitialize(int algo_num,int *msgq_id){
     if (msgq_idTemp == -1)
     {
         printf("Error in create");
+        fflush(stdout);
         return false;
     }
     *msgq_id = msgq_idTemp;
+
+    // Initializing the buddy system
+    BuddyInitialize();
 
     return true;
 }
@@ -189,11 +211,27 @@ void schedulerCreateProcess(msgBuf *msg_buffer){
     // Making the process stopped (once it enters) and check after if ready
     kill(pid,SIGTSTP);
 
+    
+    int memstartindex = BuddyAllocate(msg_buffer->proc.memsize);    
+    // returns the index at which the procedure starts.
+    if (memstartindex == -1) { /* printf("failure in allocation\n"); */}
+
+    msg_buffer->proc.memstart = memstartindex;
+    int NextPowerOfTwo = BuddyPowerOfTwo(msg_buffer->proc.memsize);
+
+    fprintf(memOutputStats, "At time %d allocated %d bytes for process %d from %d to %d\n",
+        getClk(), msg_buffer->proc.memsize, msg_buffer->proc.id, msg_buffer->proc.memstart, msg_buffer->proc.memstart + NextPowerOfTwo - 1);
+    // or       , NextPowerOfTwo instead, 
+    fflush(memOutputStats);
+    
+    
+    
     // insert in the PCB
     process *pcbProcessEntry = pcbInsert(&msg_buffer->proc);
     // Using the chosen algorithm on the created process
     algo.addProcess(algo.type,pcbProcessEntry);
     printf("Created process %d\n",msg_buffer->proc.id);
+    fflush(stdout);
     schedulerIsForContextSwitch();
 }
 
@@ -285,6 +323,7 @@ void schedulerIsForContextSwitch(){
 void schedulerFree(int SIGNUM){
     // closing the opened file
     fclose(outputStats);
+    fclose(memOutputStats);
 
     // Calculating the utilization stats
     outputStats = fopen("schedulerPerf.perf", "w");

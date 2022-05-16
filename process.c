@@ -32,8 +32,10 @@ int main(int agrc, char *argv[])
     start_time = getClk();
     run_time = atoi(argv[1]);
     printf("Runtime %d\n",run_time);
+    fflush(stdout);
     remaining_time = run_time;
     printf("remaining %d\n",remaining_time);
+    fflush(stdout);
     while (remaining_time > 0)
     {
         //printf("I am process, remaining %d\n",remaining_time);
@@ -45,6 +47,7 @@ int main(int agrc, char *argv[])
 
     destroyClk(false);
     printf("Exit\n");
+    fflush(stdout);
     exit(0);
     return 0;
 }

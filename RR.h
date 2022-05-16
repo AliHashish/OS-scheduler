@@ -78,7 +78,7 @@ bool RRpreempt(void *type) {
     circularQ *queue = (circularQ *)type;
     // should be ==
     fflush(stdout);
-    if(clk - RR_start >= RRquanta)         // the process has taken its full quanta
+    if(getClk() - RR_start >= RRquanta)         // the process has taken its full quanta
     {
         RR_start = clk;                     // sets the start time of the new process
 
@@ -88,6 +88,7 @@ bool RRpreempt(void *type) {
         bool flag = (queue->occupied > 1) && (current_running_process->remainingtime > 0);
         if (flag) {
             printf("id: %d preempting\n\n", current_running_process->id);
+            fflush(stdout);
         }
         // return (queue->occupied > 1) && (current_running_process->remainingtime > 0);
         return flag;
@@ -116,7 +117,7 @@ bool RRremoveProcess(void *type, process* p) {
 bool RRfree(void *type) {
     //RRcast(type);
     circularQ *queue = (circularQ *)type;
-    int success = (circularQFree(queue))+ 1;
+    int success = (circularQFree(queue)) + 1;
     // circularQFree returns 0 on success, -1 on failure
     // we need to turn that into 1 on success, 0 on failure
     // so we simply add one

@@ -19,7 +19,8 @@ void ReadInputFile(char* filename)
 {
     FILE* ptr = fopen("processes.txt", "r");
     if (ptr == NULL) {
-        printf("no such file.");
+        printf("No such file.");
+        fflush(stdout);
         exit(1);
     }
  
@@ -33,7 +34,7 @@ void ReadInputFile(char* filename)
 
 	// so the [^\n]\n means a full text line ending with newline.
 
-    int id, arrival, run, priority;     // used in reading the input file
+    int id, arrival, run, priority, memsize;     // used in reading the input file
 	
 	char *p;
     while(fscanf(ptr, "%s", buf) == 1)  // stops when reaching the end of the file
@@ -61,6 +62,9 @@ void ReadInputFile(char* filename)
 			fscanf(ptr, "%d", &priority);
 			//printf("Priority: %d\n", priority);
 
+            fscanf(ptr, "%d", &memsize);
+			// printf("memsize: %d\n", memsize);
+
             process *pcb = (process *)malloc(sizeof(process));
             *pcb = (process) {
                 .arrivaltime = arrival,
@@ -70,7 +74,8 @@ void ReadInputFile(char* filename)
                 .waitingtime = 0,        // initially, waiting time = 0
                 .priority = priority,
                 .StartedBefore = 0,      // initially, process has not started before
-                .status = 3,   
+                .status = 3,
+                .memsize = memsize  
             };
 
             // enqueues pcb to the processes Circular Queue
@@ -89,11 +94,13 @@ void ReadInputFile(char* filename)
 void getAlgorithmFromUser(){
     printf("Enter the required algorithm \n");
     printf("1. SJF\n2. HPF\n3. RR\n4. MLFQ\n");
+    fflush(stdout);
 
     do{
         scanf("%d",&selected_algo);
         if(selected_algo < 1 || selected_algo > 4){
             printf("Invalid choice! Please enter a number from 1 to 4\n");
+            fflush(stdout);
         }
     } while(selected_algo < 1 || selected_algo > 4);
 
@@ -108,6 +115,7 @@ void forkClkAndScheduler(){
     clk_pid = fork();
     if(clk_pid < 0){
         printf("Error while forking \n");
+        fflush(stdout);
         exit(1);
     }
     // Child(clock proc)
@@ -119,6 +127,7 @@ void forkClkAndScheduler(){
         scheduler_pid = fork();
         if(scheduler_pid < 0){
         printf("Error while forking \n");
+        fflush(stdout);
         exit(1);
         }
         // Child(Scheduler proc)
@@ -158,6 +167,7 @@ int main(int argc, char *argv[])
     if (msgq_id == -1)
     {
         printf("Error in create");
+        fflush(stdout);
         exit(-1);
     }
     //Creating the clock and the scheduler
@@ -175,6 +185,13 @@ int main(int argc, char *argv[])
         // TODO Generation Main Loop
         // 5. Create a data structure for processes and provide it with its parameters.
         process *curr_proc = circularQFront(&processes);
+        
+        
+        
+        
+        
+        // el mfrood dyh tb2a while kona 2olna????????????????????????????????????????????????????????????????????????????????????????????????
+        // wala kanet 7eta tanya xD?
         if(curr_proc->arrivaltime <= curr_time){
             curr_proc = circularQDequeue(&processes);
 
@@ -183,13 +200,14 @@ int main(int argc, char *argv[])
             message.proc = *curr_proc;
             send_val = msgsnd(msgq_id, &message, sizeof(message.proc), !IPC_NOWAIT);
             
-            if(send_val == -1){ printf("There was error in sending the message"); }
+            if(send_val == -1){ printf("There was error in sending the message"); fflush(stdout); }
             free(curr_proc); // Deallocating the dynamically created process
         }
     }
 
     // The process generator is waiting for the scheduler to terminate
     printf("Waiting for scheduler to finish\n");
+    fflush(stdout);
     int temp_pid = wait(&stat_loc);
 
     // 7. Clear clock resources

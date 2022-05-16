@@ -55,8 +55,10 @@ void priQprint(priQ *all_process) {
   int size = all_process->size;
   for(int i=0;i<size;i++) {
     printf("%d ",all_process->queue[i]->id);
+    fflush(stdout);
   }
   printf("\n");
+  fflush(stdout);
 }
 
 // 1 for success, 0 for failed (when no queue is passed)

@@ -24,6 +24,7 @@ void circularQprint(circularQ *queue) {
   int size = queue->occupied;
   for(int i=0;i<size;i++) {
     printf("%d\n",queue->entries[i]->id);
+    fflush(stdout);
   }
 }
 
