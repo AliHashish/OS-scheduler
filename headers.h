@@ -95,7 +95,7 @@ void destroyClk(bool terminateAll)
     }
 }
 
-// Algorithms structer
+// Algorithms struct
 typedef struct scheduling_algo{
     void *type;
     bool (*addProcess)(void *type, process *proc);
