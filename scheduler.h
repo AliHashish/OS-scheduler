@@ -232,7 +232,7 @@ void schedulerCreateProcess(msgBuf *msg_buffer){
     algo.addProcess(algo.type,pcbProcessEntry);
     printf("Created process %d\n",msg_buffer->proc.id);
     fflush(stdout);
-    schedulerIsForContextSwitch();
+    //schedulerIsForContextSwitch();
 }
 
 

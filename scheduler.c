@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
         }
         else {
             schedulerCreateProcess(&msgq_buffer);
+            while(schedulerReceiveMessage(msgq_id,&msgq_buffer))
+            {
+            schedulerCreateProcess(&msgq_buffer);
+            }
             if(now > previous_time) {
                 pcbRefresh();
             }
