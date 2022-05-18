@@ -6,7 +6,8 @@
 #include "SJF.h"
 #include "MLFQ.h"
 #include "pcb.h"
-#include "buddy.h"
+// #include "buddy.h"
+#include "buddyTest.h"
 
 scheduling_algo algo;
 FILE *outputStats;      // File pointer to the output file, where stats will be written
@@ -83,8 +84,8 @@ void schedulerTermination(int SIGNUM){
 
     printf("memstart: %d\n", proc->memstart);
     fflush(stdout);
-    BuddyDeallocate(proc->memstart, proc->memsize);
-    int SmallestPowerOfTwo = BuddyPowerOfTwo(proc->memsize);
+    buddy_free(proc->memstart, proc->memsize);
+    int SmallestPowerOfTwo = __nextPowerOf2(proc->memsize);
     fprintf(memOutputStats, "At time %d freed %d bytes from process %d from %d to %d\n",
         getClk(), proc->memsize, proc->id, proc->memstart, proc->memstart + SmallestPowerOfTwo - 1);
     // or       , SmallestpowerOfTwo instead, 
@@ -166,7 +167,7 @@ bool schedulerInitialize(int algo_num,int *msgq_id){
     *msgq_id = msgq_idTemp;
 
     // Initializing the buddy system
-    BuddyInitialize();
+    buddy_init(1024);   // max size of memory
 
     return true;
 }
@@ -212,12 +213,12 @@ void schedulerCreateProcess(msgBuf *msg_buffer){
     kill(pid,SIGTSTP);
 
     
-    int memstartindex = BuddyAllocate(msg_buffer->proc.memsize);    
+    int memstartindex = buddy_allocate(msg_buffer->proc.memsize);    
     // returns the index at which the procedure starts.
     if (memstartindex == -1) { /* printf("failure in allocation\n"); */}
 
     msg_buffer->proc.memstart = memstartindex;
-    int NextPowerOfTwo = BuddyPowerOfTwo(msg_buffer->proc.memsize);
+    int NextPowerOfTwo = __nextPowerOf2(msg_buffer->proc.memsize);
 
     fprintf(memOutputStats, "At time %d allocated %d bytes for process %d from %d to %d\n",
         getClk(), msg_buffer->proc.memsize, msg_buffer->proc.id, msg_buffer->proc.memstart, msg_buffer->proc.memstart + NextPowerOfTwo - 1);
