@@ -167,7 +167,7 @@ bool schedulerInitialize(int algo_num,int *msgq_id){
     *msgq_id = msgq_idTemp;
 
     // Initializing the buddy system
-    buddy_init(1024);   // max size of memory
+    buddy_init();   // max size of memory
 
     return true;
 }
